@@ -164,7 +164,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({
     setLoading(true);
     try {
       localStorage.setItem('userEmail', userEmail);
-      const response = await fetch(`http://localhost:8000/api/v1/chart-data/${encodeURIComponent(userEmail)}`);
+      const response = await fetch(`https://walnut-folks-frontend-assignment-backend.onrender.com/api/v1/chart-data/${encodeURIComponent(userEmail)}`);
       if (response.ok) {
         const data = await response.json();
         setChartData(data.data);

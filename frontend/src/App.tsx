@@ -156,7 +156,7 @@ const App: React.FC = () => {
             
             // Load user's chart data
             try {
-              const response = await fetch(`http://localhost:8000/api/v1/chart-data/${encodeURIComponent(savedEmail)}`);
+              const response = await fetch(`https://walnut-folks-frontend-assignment-backend.onrender.com/api/v1/chart-data/${encodeURIComponent(savedEmail)}`);
               if (response.ok) {
                 const result = await response.json();
                 setState(prev => ({
@@ -260,7 +260,7 @@ const App: React.FC = () => {
       localStorage.setItem('userLoginTime', currentTime.toString());
       
       // Load user's chart data
-      const response = await fetch(`http://localhost:8000/api/v1/chart-data/${encodeURIComponent(email)}`);
+      const response = await fetch(`https://walnut-folks-frontend-assignment-backend.onrender.com/api/v1/chart-data/${encodeURIComponent(email)}`);
       if (response.ok) {
         const result = await response.json();
         
@@ -268,7 +268,7 @@ const App: React.FC = () => {
         if (!result.is_existing) {
           console.log('New user detected, saving default chart data...');
           try {
-            const saveResponse = await fetch(`http://localhost:8000/api/v1/chart-data`, {
+            const saveResponse = await fetch(`https://walnut-folks-frontend-assignment-backend.onrender.com/api/v1/chart-data`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

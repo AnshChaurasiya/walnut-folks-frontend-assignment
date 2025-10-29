@@ -70,7 +70,7 @@ Edit `.env` with your Supabase credentials:
 ```env
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_API_BASE_URL=http://localhost:8000
+VITE_API_BASE_URL=https://walnut-folks-frontend-assignment-backend.onrender.com
 ```
 
 ### 3. Setup Supabase Database
