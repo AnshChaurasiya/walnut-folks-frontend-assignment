@@ -179,10 +179,10 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({
     }
   };
 
-  const handleSaveChartData = async () => {
+  const handleSaveChartData = async (): Promise<boolean> => {
     if (!chartData || !userEmail) {
       showSnackbar('No data to save', 'error');
-      return;
+      return false;
     }
 
     setLoading(true);
@@ -190,12 +190,15 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({
       const success = await saveUserChartData(userEmail, chartData);
       if (success) {
         showSnackbar('Chart data saved successfully!', 'success');
+        return true;
       } else {
         showSnackbar('Failed to save chart data', 'error');
+        return false;
       }
     } catch (error) {
       console.error('Error saving chart data:', error);
       showSnackbar('Error saving chart data', 'error');
+      return false;
     } finally {
       setLoading(false);
     }

@@ -25,13 +25,14 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { DashboardColors, ChartData } from './types';
+import { saveUserChartData } from '../../services/api';
 
 interface DataManagementProps {
   colors: DashboardColors;
   chartData: ChartData | null;
   userEmail: string;
   loading: boolean;
-  onSaveChartData: () => void;
+  onSaveChartData: () => Promise<boolean>;
   onUpdateChartData: (newData: ChartData) => void;
   onShowSnackbar: (message: string, severity: 'success' | 'error') => void;
 }
@@ -118,14 +119,14 @@ const DataManagement: React.FC<DataManagementProps> = ({
     
     try {
       if (currentField.type === 'array') {
-        newValue = editValue.split(',').map(v => Number(v.trim())).filter(v => !isNaN(v));
+        newValue = editValue.split(',').map(v => Number(v.trim())).filter(v => !Number.isNaN(v));
         if (newValue.length !== 7) {
           onShowSnackbar('Please provide exactly 7 values separated by commas', 'error');
           return;
         }
       } else if (currentField.type === 'number') {
         newValue = Number(editValue);
-        if (isNaN(newValue) || newValue < 0 || newValue > 100) {
+        if (Number.isNaN(newValue) || newValue < 0 || newValue > 100) {
           onShowSnackbar('Please provide a valid number between 0 and 100', 'error');
           return;
         }
@@ -150,14 +151,29 @@ const DataManagement: React.FC<DataManagementProps> = ({
       setEditDialogOpen(false);
       setConfirmDialogOpen(true);
     } catch (error) {
+      console.error('Invalid input format:', error);
       onShowSnackbar('Invalid input format. Please check your values.', 'error');
     }
   };
 
-  const handleConfirmSave = () => {
+  const handleConfirmSave = async () => {
     if (pendingData) {
+      // Update local state immediately for instant UI feedback
       onUpdateChartData(pendingData);
-      onShowSnackbar('Data updated successfully! Changes reflected in Call Analytics.', 'success');
+      
+      // Use the API service to save the latest changes
+      try {
+        const success = await saveUserChartData(userEmail, pendingData);
+        if (success) {
+          onShowSnackbar('Data updated and saved successfully! Changes will persist across page reloads.', 'success');
+        } else {
+          onShowSnackbar('Data updated locally but failed to save to database. Please try saving manually.', 'error');
+        }
+      } catch (error) {
+        console.error('Error in save operation:', error);
+        onShowSnackbar('Data updated locally but failed to save to database. Please try saving manually.', 'error');
+      }
+      
       setPendingData(null);
     }
     setConfirmDialogOpen(false);
@@ -198,7 +214,7 @@ const DataManagement: React.FC<DataManagementProps> = ({
           Data Management
         </Typography>
         <Typography variant="body1" sx={{ color: colors.textSecondary, mb: 3 }}>
-          Customize your chart data values. Changes will be reflected in the Call Analytics section.
+          Customize your chart data values. Changes are automatically saved and will persist across page reloads.
         </Typography>
 
         <Grid container spacing={3}>
@@ -214,7 +230,7 @@ const DataManagement: React.FC<DataManagementProps> = ({
                 Current User: {userEmail}
               </Typography>
               <Typography variant="body2" sx={{ color: colors.textSecondary }}>
-                All changes will be saved to your account and synchronized across sessions.
+                All changes are automatically saved to your account and synchronized across sessions.
               </Typography>
             </Paper>
           </Grid>
@@ -382,11 +398,11 @@ const DataManagement: React.FC<DataManagementProps> = ({
             </Typography>
             <Box component="ul" sx={{ pl: 2, color: colors.textSecondary }}>
               <li>Immediately reflect changes in the Call Analytics section</li>
-              <li>Overwrite your current data values</li>
-              <li>Require saving to database to persist across sessions</li>
+              <li>Automatically save changes to the database</li>
+              <li>Persist changes across page reloads and sessions</li>
             </Box>
-            <Typography variant="body2" sx={{ mt: 2, fontWeight: 600, color: colors.warning }}>
-              This action cannot be undone. Continue?
+            <Typography variant="body2" sx={{ mt: 2, fontWeight: 600, color: colors.success }}>
+              Changes will be saved automatically. Continue?
             </Typography>
           </DialogContent>
           <DialogActions sx={{ p: 3 }}>
@@ -404,7 +420,7 @@ const DataManagement: React.FC<DataManagementProps> = ({
                 background: colors.gradients.success,
               }}
             >
-              Yes, Update Data
+              Yes, Update & Save Data
             </Button>
           </DialogActions>
         </Dialog>
