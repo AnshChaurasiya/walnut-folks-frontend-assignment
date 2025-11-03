@@ -1,7 +1,7 @@
-// PostCSS configuration
-module.exports = {
+// PostCSS configuration (ESM)
+export default {
   plugins: {
     tailwindcss: {},
     autoprefixer: {},
   },
-}
+};
